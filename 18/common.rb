@@ -40,7 +40,7 @@ def read_input
   clear = Set.new
   open("input") do |file|
     file.each_with_index do |line, y|
-      for x in (0...line.size)
+      (0...line.size).each do |x|
         point = Point.new(x, y)
         block = line[x]
         if block == '.'
@@ -57,52 +57,41 @@ def read_input
 end
 
 
+# Return the list of points that are adjacent to this coord and are inside the
+# height and width constraints
 def adjacent(coord, maxx, maxy)
-  points = []
-  for direction in [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]
-    move = coord + Point.new(direction[0], direction[1])
-    if move.x >= 0 and move.x < maxx and move.y >= 0 and move.y < maxy
-      points << move
-    end
-  end
-  points
+  moves = [[-1, -1], [-1, 0], [-1, 1], [0, -1],
+            [0, 1], [1, -1], [1, 0], [1, 1]]
+  moves.collect { |d| coord + Point.new(d[0], d[1]) }.
+         select { |p| p.x >= 0 and p.x < maxx and p.y >= 0 and p.y < maxy }
 end
 
 
+# Calculate the transformations that will occur in one minute to the given set
+# of blocks and return the new state of the forest
 def tick(blocks, maxx, maxy)
   trees = Set.new
   lumber = Set.new
   clear = Set.new
-  for x in (0..maxx + 1)
-    for y in (0..maxy + 1)
+  (0..maxx + 1).each do |x|
+    (0..maxy + 1).each do |y|
       coord = Point.new(x, y)
       lumbercount = treecount = 0
-      for c in adjacent(coord, maxx, maxy)
-        if blocks.lumber.include?(c)
-          lumbercount += 1
-        elsif blocks.trees.include?(c)
-          treecount += 1
-        end
+      adjacent(coord, maxx, maxy).each do |c|
+        lumbercount += 1 if blocks.lumber.include?(c)
+        treecount += 1 if blocks.trees.include?(c)
       end
+      newtype = clear
       if blocks.clear.include?(coord)
-        if treecount >= 3
-          trees << coord
-        else
-          clear << coord
-        end
+        newtype = trees if treecount >= 3
       elsif blocks.trees.include?(coord)
-        if lumbercount >= 3
-          lumber << coord
-        else
-          trees << coord
-        end
+        newtype = (lumbercount >= 3? lumber : trees)
       elsif blocks.lumber.include?(coord)
-        if lumbercount >= 1 and treecount >= 1
-          lumber << coord
-        else
-          clear << coord
-        end
+        newtype = lumber if lumbercount >= 1 and treecount >= 1
+      else
+        next
       end
+      newtype << coord
     end
   end
   Blocks.new(trees, lumber, clear)

@@ -16,6 +16,10 @@ def read_input():
 
 
 def adjacent(coord, maxx, maxy):
+    """
+    Return the list of points that are adjacent to this coord and are inside
+    the height and width constraints
+    """
     for movex, movey in ((-1, -1), (-1, 0), (-1, 1), (0, -1),
                          (0, 1), (1, -1), (1, 0), (1, 1)):
 
@@ -26,6 +30,10 @@ def adjacent(coord, maxx, maxy):
 
 
 def tick(trees, lumber, clear, maxx, maxy):
+    """
+    Calculate the transformations that will occur in one minute to the given
+    set of blocks and return the new state of the forest
+    """
     newtrees = set()
     newlumber = set()
     newclear = set()

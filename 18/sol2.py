@@ -11,15 +11,23 @@ if __name__ == '__main__':
     seen = set()
     pattern = []
     recording = False
+
+    # We'll keep simulating until we find a pattern of repeating results
     for minute in range(1, MAX):
         trees, lumber, clear = tick(trees, lumber, clear, maxx, maxy)
         res = len(trees) * len(lumber)
         if res in seen:
             if not recording:
+                # If we've already seen this result, start recording until we
+                # get to it again
                 recording = True
                 pattern = [res]
             else:
                 if res == pattern[0]:
+                    # We've come full circle and found the same result as when
+                    # we started recording. We have the pattern of repeating
+                    # results in the `pattern` array, so we can just calculate
+                    # where we'll be at minute `MAX`
                     target = (MAX - minute) % len(pattern)
                     print(pattern[target])
                     break
